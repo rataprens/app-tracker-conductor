@@ -1,0 +1,70 @@
+page-login {
+    .toolbar-background {
+        background: rgb(255, 126, 0);
+        border-color: transparent;
+    }
+    .slide-zoom {
+        height: 100%;
+    }
+    .slide-title {
+        margin-top: 2.8rem;
+    }
+    .slide-image {
+        max-height: 50%;
+        max-width: 60%;
+        margin: 18px 0;
+    }
+    b {
+        font-weight: 500;
+    }
+    p {
+        padding: 0 40px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: white;
+        b {
+            color: #000000;
+        }
+    }
+    .color-background {
+        background-color: rgb(255, 126, 0);
+    }
+    .dosis {
+        font-family: 'Dosis', sans-serif;
+    }
+}
+
+.swal-color {
+    background-color: rgb( 255, 142, 0);
+}
+
+.swal-title {
+    font-size: 25px;
+    font-family: 'Dosis', sans-serif;
+    color: white;
+}
+
+.swal-text {
+    background-color: rgb( 255, 142, 0);
+    padding: 17px;
+    font-size: 20px;
+    display: block;
+    margin: 22px;
+    text-align: center;
+    color: white;
+}
+
+.swal-footer {
+    background-color: rgb(255, 126, 0);
+    margin-top: 32px;
+    border-top: 1px solid rgb(255, 126, 0);
+    overflow: hidden;
+}
+
+.swal-button {
+    background-color: rgb(228, 72, 23);
+    font-size: 16px;
+    border: 1px solid rgb(228, 72, 23);
+    text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
+    margin-right: 120px;
+}

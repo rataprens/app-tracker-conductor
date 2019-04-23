@@ -1,0 +1,49 @@
+<ion-content padding class="color-background">
+
+    <ion-slides pager>
+
+        <ion-slide color="primary">
+
+            <ion-toolbar>
+            </ion-toolbar>
+
+            <img src="assets/imgs/delivery.png" class="slide-image" />
+            <h2 class="slide-title dosis">Ingrese sus Datos</h2>
+            <br>
+            <ion-item>
+                <ion-input [(ngModel)]="empresa" type="text" placeholder="Empresa" required></ion-input>
+            </ion-item>
+            <p class="dosis" style="font-size: 18px;">Debe ingresar su código de usuario</p>
+
+            <button ion-button block (click)="abrirPromp()" class="dosis">
+            Ingresar
+          </button>
+
+        </ion-slide>
+
+
+        <!-- Ultimo Slide -->
+        <ion-slide color="primary">
+            <ion-toolbar>
+            </ion-toolbar>
+
+
+            <img src="assets/imgs/checkmark.png" class="slide-image " />
+            <h2 class="slide-title dosis" style="color: white;">Bienvenido/a
+                <!-- {{usuario.nombre}} -->¿Listo para empezar?</h2>
+
+
+            <br>
+            <br>
+            <button ion-button icon-right block class="dosis" (click)="irPagina()">
+            Continuar
+        <ion-icon name="arrow-forward"></ion-icon>
+      </button>
+
+        </ion-slide>
+        <!-- Fin del último slide -->
+
+    </ion-slides>
+
+
+</ion-content>
