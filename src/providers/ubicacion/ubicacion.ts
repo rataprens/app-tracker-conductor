@@ -24,7 +24,7 @@ export class UbicacionProvider {
                 if(this.platform.is('cordova')){
                   /* movil */
                   this.storage.get('clave').then( clave =>{
-                    
+                          
                           this.clave = clave;
                       
                   });
@@ -43,8 +43,8 @@ export class UbicacionProvider {
 
   iniciarTaxista(){
           //Apuntamos al taxita de tipo AngularFireStoreDocument a la Base de datos
-          this.taxista = this.afDB.collection(`${this._usuarioProv.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this._usuarioProv.clave}`);
-          this.taxistaWeb = this.afDB.collection(`${this._usuarioProv.empresa}`).doc('web').collection(`${this._usuarioProv.empresa}-111`).doc(`${this._usuarioProv.clave}`);
+          this.taxista = this.afDB.collection(`${this.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this.clave}`);
+          this.taxistaWeb = this.afDB.collection(`${this.empresa}`).doc('web').collection(`${this.empresa}-111`).doc(`${this.clave}`);
   }
 
   iniciarGeolocalizacion(){

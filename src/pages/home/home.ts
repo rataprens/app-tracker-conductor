@@ -52,9 +52,9 @@ export class HomePage {
                 }
                   /* FIN */
 
-                              
+                       //CUANDO LA PLATAFORMA ESTE LISTA CARGADA       
                   this.platform.ready().then(()=>{
-                          
+                    //LLamamos al servicio de ubicacion e iniciamos el metodo iniciarTaxista()
                     this._ubicacionProv.iniciarTaxista();
                     this._ubicacionProv.iniciarGeolocalizacion();
                     this._ubicacionProv.taxista.valueChanges()
@@ -71,7 +71,7 @@ export class HomePage {
                                               console.log(this.user); */                     
                                             });
 
-                  this.conductorSub = this.db.collection(`${this._usuarioProv.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this._usuarioProv.clave}`).valueChanges().subscribe((data:any)=>{
+                  this.conductorSub = this.db.collection(`${this._ubicacionProv.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this._ubicacionProv.clave}`).valueChanges().subscribe((data:any)=>{
                       console.log(data);
                       if(data.compartir === true){
                         console.log("COMPARTIENDO");
