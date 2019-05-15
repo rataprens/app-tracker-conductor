@@ -42,9 +42,13 @@ export class UbicacionProvider {
   }
 
   iniciarTaxista(){
+/*           if(this.clave && this.empresa == null){
+            this.clave = this._usuarioProv.clave;
+            this.empresa = this._usuarioProv.empresa;
+          } */
           //Apuntamos al taxita de tipo AngularFireStoreDocument a la Base de datos
-          this.taxista = this.afDB.collection(`${this.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this.clave}`);
-          this.taxistaWeb = this.afDB.collection(`${this.empresa}`).doc('web').collection(`${this.empresa}-111`).doc(`${this.clave}`);
+          this.taxista = this.afDB.collection(`${this._usuarioProv.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this._usuarioProv.clave}`);
+          this.taxistaWeb = this.afDB.collection(`${this._usuarioProv.empresa}`).doc('web').collection(`${this._usuarioProv.empresa}-111`).doc(`${this._usuarioProv.clave}`);
   }
 
   iniciarGeolocalizacion(){

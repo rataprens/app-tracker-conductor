@@ -1,1 +1,54 @@
-<ion-nav [root]="rootPage"></ion-nav>
+<ion-menu side="right" type="push" [content]="content">
+    <ion-header>
+        <ion-navbar color="primary" style="height:80px;">
+            <ion-title>Bienvenido/a </ion-title>
+        </ion-navbar>
+    </ion-header>
+    <ion-content>
+        <ion-list no-lines>
+
+            <!--             <button menuClose ion-item *ngFor="let page of pages" (click)="openPage(page)">
+               {{page.title}}
+               <ion-icon id="notification-button" end [name]="page.icon" item-right>
+                   <ng-container *ngFor="let pedido of pedidos">
+                       <ion-badge *ngIf="pedido.compartir" id="notifications-badge" color="danger" item-end>5</ion-badge>
+                   </ng-container>
+               </ion-icon>
+            </button> -->
+            <button menuClose ion-item (click)="abrirPedidos()">
+                Pedidos
+                <ion-icon id="notification-button" end name="paper-outline" item-right>
+                    <ng-container *ngFor="let pedido of pedidosNoEntregados; let i = index">
+                        <ion-badge id="notifications-badge" color="danger" item-end> {{cantidadPedidosNoEntregados}} </ion-badge>
+                    </ng-container>
+                </ion-icon>
+            </button>
+            <button menuClose ion-item (click)="abrirChat()">
+                Chat
+                <ion-icon id="notification-button" end name="chatbubbles-outline" item-right>
+                    <ion-badge id="notifications-badge" color="danger" item-end>5</ion-badge>
+                </ion-icon>
+            </button>
+            <button menuClose ion-item (click)="abrirRepartos()">
+                Repartos Realizados
+                <ion-icon id="notification-button" end name="checkmark-circle-outline" item-right>
+                    <ng-container *ngFor="let pedido of pedidosEntregados; let i = index">
+                        <ion-badge id="notifications-badge" color="danger" item-end> {{cantidadPedidosEntregados}} </ion-badge>
+                    </ng-container>
+                </ion-icon>
+            </button>
+            <button menuClose ion-item (click)="abrirMapa()">
+                Mapa
+                <ion-icon id="notification-button" end name="pin-outline" item-right></ion-icon>
+            </button>
+            <ion-item item-end>
+                <ion-label>Siguenos en:</ion-label>
+                <ion-icon name="logo-facebook" item-right></ion-icon>
+                <ion-icon name="logo-instagram" item-right></ion-icon>
+                <ion-icon name="logo-twitter" item-right></ion-icon>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+
+</ion-menu>
+<ion-nav id="nav" [root]="rootPage" #content></ion-nav>

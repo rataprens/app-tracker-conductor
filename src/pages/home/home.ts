@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, Platform } from 'ionic-angular';
+import { NavController, Platform, AlertController } from 'ionic-angular';
 import { UbicacionProvider } from '../../providers/ubicacion/ubicacion';
 import { LoginPage } from '../login/login';
 import { UsuarioProvider } from '../../providers/usuario/usuario';
@@ -7,6 +7,8 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Storage } from '@ionic/storage';
 import { Subscription } from 'rxjs';
 import { ToastController } from 'ionic-angular';
+import swal from 'sweetalert';
+import { ActualizarMenuProvider } from '../../providers/actualizar-menu/actualizar-menu';
 
 
 @Component({
@@ -17,11 +19,15 @@ export class HomePage {
   
   lat: number = -36.7819765;
   lng: number = -73.0818353;
-  user: any = {};
+  user: any = "Hola";
+  user2: any;
   clave:string;
   empresa:string;
-  conductorSub: Subscription;
   init:boolean = false;
+  pedidosUbicacion :any[];
+  public estadoSub: Subscription;
+  pedidosSub: Subscription;
+  
 
   constructor(public navCtrl: NavController, 
               public _ubicacionProv: UbicacionProvider, 
@@ -29,94 +35,132 @@ export class HomePage {
               public _usuarioProv: UsuarioProvider,
               public db:AngularFirestore,
               public storage:Storage,
-              private toast:ToastController) {
+              private toast:ToastController,
+              public alertCtrl: AlertController,
+              public actualizarService:ActualizarMenuProvider) {
                 
-                /* OBTENEMOS LA CLAVE DEL USUARIO ALMACENADA EN EL LOCAL STORAGE */
-                if(this.platform.is('cordova')){
-                  /* movil */
-                  this.storage.get('clave').then( clave =>{
-                      if(clave){
-                          this.clave = clave;
-                      }
-                  });
-                  this.storage.get('empresa').then(nombre =>{
-                      if(nombre){
-                        this.empresa = nombre;
-                      }
-                  });
-                }else{
-                    /* Escritorio */
-                    this.clave = localStorage.getItem('clave');
-                    this.empresa = localStorage.getItem('empresa')
-                    /* console.log(this.clave, this.empresa); */
+          /* OBTENEMOS LA CLAVE DEL USUARIO ALMACENADA EN EL LOCAL STORAGE */
+          if(this.platform.is('cordova')){
+            /* movil */
+            this.storage.get('clave').then( clave =>{
+                if(clave){
+                    this.clave = clave;
                 }
-                  /* FIN */
+            });
+            this.storage.get('empresa').then(nombre =>{
+                if(nombre){
+                  this.empresa = nombre;
+              }else{
+                let toast = this.toast.create({
+                  message: `no hay clave`,
+                  duration: 3000,
+                  position: 'top'
+                });
+                toast.present();
+                }
+            });
+          }else{
+              /* Escritorio */
+              this.clave = localStorage.getItem('clave');
+              this.empresa = localStorage.getItem('empresa')
+              /* console.log(this.clave, this.empresa); */
+          }
+            /* FIN */
 
-                       //CUANDO LA PLATAFORMA ESTE LISTA CARGADA       
-                  this.platform.ready().then(()=>{
-                    //LLamamos al servicio de ubicacion e iniciamos el metodo iniciarTaxista()
-                    this._ubicacionProv.iniciarTaxista();
-                    this._ubicacionProv.iniciarGeolocalizacion();
-                    this._ubicacionProv.taxista.valueChanges()
-                                              .subscribe((data) =>{
-                                                this.user = data;
-                                              });   
-                                              
-                                              /* EVALUACION SI EXISTE CLAVE  */
-                                              /*                     this.db.collection(`${this.empresa}`).doc('movil').collection('usuarios').doc(`${this.clave}`).valueChanges().subscribe(data =>{
-                                                this.user = data;
-                                              });
-                                              
-                                              
-                                              console.log(this.user); */                     
-                                            });
 
-                  this.conductorSub = this.db.collection(`${this._ubicacionProv.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this._ubicacionProv.clave}`).valueChanges().subscribe((data:any)=>{
-                      console.log(data);
-                      if(data.compartir === true){
-                        console.log("COMPARTIENDO");
-                        if(!this.init){
-                          let toast = this.toast.create({
-                            message: "Su Ruta está siendo compartida",
-                            duration: 3000,
-                            position: 'top'
-                          });
-                          toast.present();
-                          this.init = true;
-                        }else{
-                          return false;
-                        }
-                      }else{
-                        console.log("YA NO COMPARTIENDO");
-                          if(this.init){
+      this._ubicacionProv.iniciarTaxista();
+      this._ubicacionProv.iniciarGeolocalizacion();
+      this.estadoSub = this._ubicacionProv.taxista.valueChanges()
+            .subscribe((data:any) =>{
+              if(data){
+                this.user = data;
+                console.log(this.user);
 
-                            let toast = this.toast.create({
-                              message: "Su Ruta ya no está siendo compartida",
-                              duration: 3000,
-                              position: 'top'
-                            });
-                            toast.present();
-                            this.init = false;
-                          }else{
-                            return false;
-                          }
-                      }
+                ///TOAST COMPARTIENDO
+
+/*                 if(this.user.compartir === true){
+                  let toast = this.toast.create({
+                    message: `Su estado es: ${this.user.compartir}`,
+                    duration: 3000,
+                    position: 'top'
                   });
-              }
+                  toast.present();
+                }else{
+                  let toast = this.toast.create({
+                    message: `Su estado es: ${this.user.compartir}`,
+                    duration: 3000,
+                    position: 'top'
+                  });
+                  toast.present();
+                } */
+                
+              this.pedidosSub = this._ubicacionProv.taxista.collection('pedidos').valueChanges().subscribe((data:Array<any>)=>{
+                if(data){
+                  this.pedidosUbicacion = data.filter(pedido => pedido.direccion );
+                  console.log(this.pedidosUbicacion);
+                  this.actualizarService.emitChange(data);
+                }else{
+                  console.log("no hay datos de pedidos")
+                }
+              });
 
-    ionViewDidLoad(){
+              }else{
+                console.log("No hay datos")
+              }
+          });  
+
+        console.log(this.user);
+        console.log(this.empresa, this.clave);
     }
 
-  salir(){
-    this.db.collection(`${this.empresa}`).doc('movil').collection('usuarios').doc(`${this.clave}`).update({
-      online: false,
-      empresa: this.empresa
-    });
-    this.conductorSub.unsubscribe(); /* Ultimo CAMBIO */
-    this._ubicacionProv.detenerGeolocalizacion();
-    this._usuarioProv.borrarStorage();
-    this.navCtrl.setRoot( LoginPage);
+  ionViewDidLoad(){
+  }
 
+  salir(){ 
+
+    let alert = this.alertCtrl.create({
+      title: 'Confirmar Desconexión',
+      message: '¿Esta seguro que desea salir ?',
+      buttons: [
+        {
+          text: 'No, cancelar',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancelar clickeado');
+          }
+        },
+        {
+          text: 'Sí, estoy seguro',
+          handler: () => {
+            this.db.collection(`${this.empresa}`).doc('movil').collection('usuarios').doc(`${this.clave}`).update({
+              online: false,
+              empresa: this.empresa
+            });
+            this._usuarioProv.borrarStorage();
+            if(this._usuarioProv.doc){
+              this._usuarioProv.detenerSub();
+            }else if(this.user === {}){
+              return
+            }
+            if(this.pedidosSub){
+              this.pedidosSub.unsubscribe();
+            }
+            //storage borrado
+            console.log("el storage a sido borrado");
+            this._ubicacionProv.detenerGeolocalizacion();
+            this.estadoSub.unsubscribe();
+            this.navCtrl.setRoot(LoginPage);
+          }
+        }
+      ]
+    });
+    alert.present();
+  }
+
+  cargarConductor(){
+    return new Promise((resolve, reject)=>{
+
+    });
   }
 
 }

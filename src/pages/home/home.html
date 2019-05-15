@@ -1,13 +1,15 @@
 <ion-header>
     <ion-navbar color="primary">
-        <ion-buttons>
-            <button ion-button (click)="salir()">
-               Salir
-            </button>
-        </ion-buttons>
-        <ion-title>
-            {{user.nombre}}
-            <ion-icon name="heart"></ion-icon>
+        <button ion-button end menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <button ion-button (click)="salir()">
+            <ion-icon end name="log-out" item-left></ion-icon>
+            <ion-label style="padding-left:6px;"> Salir</ion-label>
+        </button>
+        <ion-title class="posicion">
+            Mapa
+            <ion-icon name="pin-outline" class="posicion" style="padding-left:7px;"></ion-icon>
         </ion-title>
     </ion-navbar>
 </ion-header>

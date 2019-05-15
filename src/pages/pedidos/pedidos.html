@@ -1,0 +1,30 @@
+<ion-header>
+    <ion-navbar color="primary">
+        <button ion-button end menuToggle>
+                <ion-icon name="menu"></ion-icon>
+            </button>
+        <button ion-button (click)="salir()">
+                <ion-icon end name="log-out" item-left></ion-icon>
+                <ion-label style="padding-left:6px;"> Salir</ion-label>
+            </button>
+        <ion-title class="posicion">
+            Pedidos
+            <ion-icon name="paper-outline" class="posicion" style="padding-left:7px;"></ion-icon>
+        </ion-title>
+    </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+    <ion-list no-lines>
+        <ng-container *ngFor="let pedido of pedidos">
+            <ion-item *ngIf="!pedido.entregado" (click)="abrirDetalles(pedido)">
+                <ion-avatar item-start>
+                    <img src="assets/imgs/delivery.png">
+                </ion-avatar>
+                <h2>{{pedido.tipoPedido}}</h2>
+                <p>{{pedido.direccion}}</p>
+            </ion-item>
+        </ng-container>
+
+    </ion-list>
+</ion-content>

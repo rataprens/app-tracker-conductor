@@ -6,6 +6,7 @@ import swal from 'sweetalert';
 import { UbicacionProvider } from '../../providers/ubicacion/ubicacion';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
+import { ActualizarMenuProvider } from '../../providers/actualizar-menu/actualizar-menu';
 
 
 
@@ -17,18 +18,19 @@ import { Subscription } from 'rxjs';
   templateUrl: 'login.html',
 })
 export class LoginPage {
-  
+  pedidosSub: Subscription;
+    pedidos:any;
    usuario:any = {};
    empresa:string;
    password:string;
-
+  public verificarSub: Subscription;
  /*   conductorSub: Subscription; */
 
   @ViewChild(Slides) slides: Slides
 
   constructor(public loadingCrl: LoadingController, private alertCtrl: AlertController,
                public navCtrl: NavController, public navParams: NavParams, public _usuarioProv: UsuarioProvider,
-               public _ubicacion: UbicacionProvider, public db:AngularFirestore) {
+               public _ubicacion: UbicacionProvider, public db:AngularFirestore, public actualizarMenu:ActualizarMenuProvider) {
   }
 
   ionViewDidLoad() {
@@ -39,38 +41,25 @@ export class LoginPage {
     this.slides.freeMode = false;
   }
 
-  async abrirPromp(){
-    /* let alert = this.alertCtrl.create({
-      title: 'Ingresa',
-      inputs: [
-        {
-          name: 'password',
-          placeholder: 'password',
-          type: 'password'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          handler: data =>{
-            console.log("usuario a cancelado")
-          }
-        },
-        {
-          text: 'Ingresar',
-          handler: data =>{
-            console.log(data);
-            if(data.password){
-              this.verificarUsuario(data.password);
-            }else{
-              this.verificarUsuario("null");
-            }
-          }
-        }
-      ]
-    });
-    alert.present(); */
+  ingresar(){
+    if(this.empresa && this.password){
+        
+          this.empresa = this.empresa.toLocaleLowerCase();
+          this.password = this.password.toLocaleLowerCase();
+          this.verificarUsuario(this.password, this.empresa);
+    
+    }else{
+      this.alertCtrl.create({
+        title: 'Ingrese Alguna Contraseña',
+        buttons: [
+          'Ok'
+        ]
+      }).present();
+    }
+  }
+
+/*   async abrirPromp(){
+
       if(this.empresa){
           
               swal({
@@ -91,7 +80,7 @@ export class LoginPage {
                   swal("Ingrese contraseña", "Intente ingresando una contraseña", "warning", {
                     timer: 2500,
                     className:"swal-color"  
-                  })
+                  });
                 }
               });
           
@@ -99,7 +88,7 @@ export class LoginPage {
 
         return false;
       }
-  }
+  } */
 
   /* METODO DE VERIFICACION DE LOS USUARIOS */
   verificarUsuario(clave:string, empresa:string){
@@ -120,9 +109,20 @@ export class LoginPage {
                     this.slides.lockSwipes(true);
                     this.slides.freeMode = false;
                     this._ubicacion.iniciarTaxista();
-                    this._ubicacion.taxista.valueChanges().subscribe((data)=>{
-                        this.usuario = data;  
-                        console.log(this.usuario);
+                    this.verificarSub = this._ubicacion.taxista.valueChanges().subscribe((data)=>{
+                        if(data){
+                          this.usuario = data;  
+                          console.log(this.usuario);
+                          this.pedidosSub = this._ubicacion.taxista.collection('pedidos').valueChanges().subscribe((data:any)=>{
+                              if(data){
+                                this.actualizarMenu.emitChange(data);
+                              }else{
+                                console.log("no hay datos de pedidos")
+                              }
+                          });
+                        }else{
+                          console.log("no hay datos")
+                        }
                     });
 
                   }else{
@@ -145,7 +145,7 @@ export class LoginPage {
   /* FIN METODO */
 
   irPagina(){
-     console.log(this.usuario); 
+     /* console.log(this.usuario);  */
       this.db.collection(`${this.empresa}`).doc('movil').collection('usuarios').doc(`${this.usuario['clave']}`).update({
       online: true,
       empresa: this.empresa
@@ -153,7 +153,9 @@ export class LoginPage {
         console.log(err);
     });
     this.navCtrl.setRoot(HomePage);
-
+    if(this.pedidosSub){
+      this.pedidosSub.unsubscribe();
+    }
   }
 
 }
