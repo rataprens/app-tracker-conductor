@@ -49,7 +49,7 @@ export class PedidosPage {
         /* console.log(this.clave, this.empresa); */
     }
     
-    this.userSub = this._ubicacionProv.taxista.valueChanges().subscribe((data:any) =>{
+    this.userSub = this._ubicacionProv.conductor.valueChanges().subscribe((data:any) =>{
         if(data){
           this.user = data;
           console.log('Datos Correctos');
@@ -59,7 +59,7 @@ export class PedidosPage {
         }
     });
 
-    this.pedidoSub = this._ubicacionProv.taxista.collection('pedidos').valueChanges().subscribe((data:any)=>{
+    this.pedidoSub = this._ubicacionProv.conductor.collection('pedidos').valueChanges().subscribe((data:any)=>{
       if(data){
         this.pedidos = data;
         console.log(this.pedidos);
@@ -74,10 +74,13 @@ export class PedidosPage {
     console.log('ionViewDidLoad PedidosPage');
   }
 
-  abrirDetalles(pedido:any){
+  abrirDetalles(pedido:any, item:any){
+    
     console.log(pedido);
     const modal = this.modalCtrl.create(DetallesPedidoPage, {pedido});
+    item.close();
     modal.present();
+    
   }
 
   salir(){
@@ -95,7 +98,7 @@ export class PedidosPage {
         {
           text: 'Sí, estoy seguro',
           handler: () => {
-            this.db.collection(`${this.empresa}`).doc('movil').collection('usuarios').doc(`${this.clave}`).update({
+            this.db.collection('locales').doc(`${this.empresa}`).collection('movil').doc(`${this.clave}`).update({
               online: false,
               empresa: this.empresa
             });
@@ -116,7 +119,16 @@ export class PedidosPage {
     });
     alert.present();
   }
-
+  
+  completarPedidos(pedido:any){
+    this.db.collection('locales').doc(`${this.empresa}`).collection('pedidos').doc(`${pedido.idGeneral}`).update({
+      entregado: true
+    });
+    
+    this.db.collection('locales').doc(`${this.empresa}`).collection('movil').doc(`${this.clave}`).collection('pedidos').doc(`${pedido.idPedidoConductor}`).update({
+      entregado: true
+    });
+  }
 }
 
 

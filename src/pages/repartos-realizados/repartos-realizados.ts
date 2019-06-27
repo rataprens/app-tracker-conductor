@@ -49,7 +49,7 @@ export class RepartosRealizadosPage {
         /* console.log(this.clave, this.empresa); */
     }
    
-    this.userSub = this._ubicacionProv.taxista.valueChanges().subscribe((data:any) =>{
+    this.userSub = this._ubicacionProv.conductor.valueChanges().subscribe((data:any) =>{
       if(data){
         this.user = data;
         console.log('Datos Correctos');
@@ -59,7 +59,7 @@ export class RepartosRealizadosPage {
       }
   });
 
-  this.pedidoSub = this._ubicacionProv.taxista.collection('pedidos').valueChanges().subscribe((data:any)=>{
+  this.pedidoSub = this._ubicacionProv.conductor.collection('pedidos').valueChanges().subscribe((data:any)=>{
     if(data){
       this.pedidos = data;
       console.log(this.pedidos);
@@ -96,7 +96,7 @@ export class RepartosRealizadosPage {
         {
           text: 'Sí, estoy seguro',
           handler: () => {
-            this.db.collection(`${this.empresa}`).doc('movil').collection('usuarios').doc(`${this.clave}`).update({
+            this.db.collection(`locales`).doc(`${this.empresa}`).collection('movil').doc(`${this.clave}`).update({
               online: false,
               empresa: this.empresa
             });

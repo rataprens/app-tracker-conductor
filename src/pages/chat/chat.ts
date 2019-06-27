@@ -49,7 +49,7 @@ export class ChatPage {
         /* console.log(this.clave, this.empresa); */
     }
     
-    this.userSub = this._ubicacionProv.taxista.valueChanges().subscribe((data:any) =>{
+    this.userSub = this._ubicacionProv.conductor.valueChanges().subscribe((data:any) =>{
         if(data){
           this.user = data;
           console.log('Datos Correctos');

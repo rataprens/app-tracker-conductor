@@ -10,12 +10,12 @@ import { Storage } from '@ionic/storage';
 @Injectable()
 export class UbicacionProvider {
 
-  taxista: AngularFirestoreDocument<any>;
-  taxistaWeb: AngularFirestoreDocument<any>;
+  conductor: AngularFirestoreDocument<any>;
   private watch: Subscription;
 
   empresa:string;
   clave:string;
+
 
   constructor(private geolocation: Geolocation, private afDB: AngularFirestore,
               private _usuarioProv: UsuarioProvider,public platform: Platform,
@@ -41,52 +41,50 @@ export class UbicacionProvider {
                 }
   }
 
-  iniciarTaxista(){
-/*           if(this.clave && this.empresa == null){
-            this.clave = this._usuarioProv.clave;
-            this.empresa = this._usuarioProv.empresa;
-          } */
+  iniciarConductor(){
+
           //Apuntamos al taxita de tipo AngularFireStoreDocument a la Base de datos
-          this.taxista = this.afDB.collection(`${this._usuarioProv.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this._usuarioProv.clave}`);
-          this.taxistaWeb = this.afDB.collection(`${this._usuarioProv.empresa}`).doc('web').collection(`${this._usuarioProv.empresa}-111`).doc(`${this._usuarioProv.clave}`);
+          
+          this.conductor = this.afDB.collection('locales').doc(`${this._usuarioProv.empresa}`).collection(`movil`).doc(`${this._usuarioProv.clave}`);
+          var docRef =  this.afDB.collection('locales').doc(`${this.empresa}`);
+          docRef.snapshotChanges().subscribe(data=>{
+            console.log(data.payload);
+          });
+       
   }
 
   iniciarGeolocalizacion(){
-    this.platform.ready().then(()=>{
-      let options = {timeout: 10000, enableHighAccuracy: true, maximumAge: 3600};
-      this.geolocation.getCurrentPosition(options).then((resp) => {
-        // resp.coords.latitude
-        // resp.coords.longitude
-        this.taxista.update({
-            lat: resp.coords.latitude,
-            lng: resp.coords.longitude,
-            clave: this._usuarioProv.clave
-        });
-        
-        this.taxistaWeb.update({
+
+/*     this.platform.ready().then(()=>{
+      
+
+    }) */
+
+    let options = {timeout: 10000, enableHighAccuracy: true, maximumAge: 3600};
+
+    this.geolocation.getCurrentPosition(options).then((resp) => {
+      // resp.coords.latitude
+      // resp.coords.longitude
+      this.conductor.update({
           lat: resp.coords.latitude,
-          lng: resp.coords.longitude
-        });
-  
-        this.watch = this.geolocation.watchPosition()
-                    .subscribe((data) => {
-                     // data can be a set of coordinates, or an error (if an error occurred).
-                     // data.coords.latitude
-                     this.taxista.update({
-                      lat: data.coords.latitude,
-                      lng: data.coords.longitude,
-                      clave: this._usuarioProv.clave
-                  });
-                    this.taxistaWeb.update({
-                      lat: data.coords.latitude,
-                      lng: data.coords.longitude
-                    });
-        });
-  
-       }).catch((error) => {
-         console.log('Error getting location', JSON.stringify(error));
-       });
-    })
+          lng: resp.coords.longitude,
+          clave: this._usuarioProv.clave
+      });
+
+      this.watch = this.geolocation.watchPosition()
+                  .subscribe((data) => {
+                   // data can be a set of coordinates, or an error (if an error occurred).
+                   // data.coords.latitude
+                   this.conductor.update({
+                    lat: data.coords.latitude,
+                    lng: data.coords.longitude,
+                    clave: this._usuarioProv.clave
+                });
+      });
+
+     }).catch((error) => {
+       console.log('Error getting location', JSON.stringify(error));
+     });
      
   }
 

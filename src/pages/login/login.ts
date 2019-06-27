@@ -2,14 +2,10 @@ import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, Slides, AlertController, LoadingController } from 'ionic-angular';
 import { UsuarioProvider } from '../../providers/usuario/usuario';
 import { HomePage } from '../home/home';
-import swal from 'sweetalert';
 import { UbicacionProvider } from '../../providers/ubicacion/ubicacion';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { ActualizarMenuProvider } from '../../providers/actualizar-menu/actualizar-menu';
-
-
-
 
 
 @IonicPage()
@@ -18,21 +14,27 @@ import { ActualizarMenuProvider } from '../../providers/actualizar-menu/actualiz
   templateUrl: 'login.html',
 })
 export class LoginPage {
+
+  //VARIABLES
   pedidosSub: Subscription;
-    pedidos:any;
-   usuario:any = {};
-   empresa:string;
-   password:string;
+  pedidos:any;
+  usuario:any = {};
+  empresa:string;
+  password:string;
   public verificarSub: Subscription;
- /*   conductorSub: Subscription; */
-
   @ViewChild(Slides) slides: Slides
-
+  //FIN VARIABLES
+  
+  //CONSTRUCTOR
   constructor(public loadingCrl: LoadingController, private alertCtrl: AlertController,
                public navCtrl: NavController, public navParams: NavParams, public _usuarioProv: UsuarioProvider,
                public _ubicacion: UbicacionProvider, public db:AngularFirestore, public actualizarMenu:ActualizarMenuProvider) {
   }
 
+  //FIN CONSTRUCTOR
+
+  //METODOS
+  //Cuando la vista esté cargada =>
   ionViewDidLoad() {
     //Cambiamos el tipo de paginacion.
     this.slides.paginationType = 'progress';
@@ -40,80 +42,57 @@ export class LoginPage {
     this.slides.lockSwipes(true);
     this.slides.freeMode = false;
   }
-
+  //Metodo para ingresar
   ingresar(){
+    //Si las variables empresa y password existen
     if(this.empresa && this.password){
-        
+        //Transforma las variables a minusculas
           this.empresa = this.empresa.toLocaleLowerCase();
           this.password = this.password.toLocaleLowerCase();
+        //Llamamos al metodo verificarUsuario
           this.verificarUsuario(this.password, this.empresa);
     
     }else{
+      //Si no lanza un Alert Controller pidiendo que se vuelva
+      //a ingresar alguna de las dos variables
       this.alertCtrl.create({
         title: 'Ingrese Alguna Contraseña',
         buttons: [
           'Ok'
-        ]
+        ]//Por ultimo presentamos el Alert Controller
       }).present();
     }
   }
-
-/*   async abrirPromp(){
-
-      if(this.empresa){
-          
-              swal({
-                title:'Ingresa tu contraseña',
-                content: {
-                  element: "input",
-                  attributes: {
-                    placeholder: "Escribe una Contraseña",
-                    type: "password"
-                  }
-                },
-                className: "swal-color",
-                timer : 12000
-              }).then(password=>{
-                if(password){
-                    this.verificarUsuario(password, this.empresa);
-                }else{
-                  swal("Ingrese contraseña", "Intente ingresando una contraseña", "warning", {
-                    timer: 2500,
-                    className:"swal-color"  
-                  });
-                }
-              });
-          
-      }else{
-
-        return false;
-      }
-  } */
-
-  /* METODO DE VERIFICACION DE LOS USUARIOS */
+  //Metodo para verificar el usuario en la bd
   verificarUsuario(clave:string, empresa:string){
-    
+    //Creamos un Loading Controller con un contenido que diga "Verificando"
     let loading = this.loadingCrl.create({
       content: 'Verificando'
     });
-    
+    //Presentamos el Loading Controller
     loading.present()
-
+    //LLamamos al Usuario Provider y accedemos a su metodo llamado verificarUsuario 
+    //que recibe dos valores, clave y empresa
     this._usuarioProv.verificarUsuario(clave, empresa)
+                  //Devuelve un valor boolean, true o false
                 .then(existe =>{
+                  //Si el valor es verdadero significa que existe
                   if(existe){
+                    //Dejamos de presentar el Loading Controller cargado con anterioridad
                     loading.dismiss();
+                    //CONFIGURACIONES DEL OBJETO SLIDE
                     this.slides.lockSwipes(false);
                     this.slides.freeMode = true;
                     this.slides.slideNext();
                     this.slides.lockSwipes(true);
                     this.slides.freeMode = false;
-                    this._ubicacion.iniciarTaxista();
-                    this.verificarSub = this._ubicacion.taxista.valueChanges().subscribe((data)=>{
+                    //Llamamos a Ubicacion Provider y accedemos a su metodo iniciar taxista
+                    this._ubicacion.iniciarConductor();
+                    this.verificarSub = this._ubicacion.conductor.valueChanges().subscribe((data)=>{
                         if(data){
                           this.usuario = data;  
                           console.log(this.usuario);
-                          this.pedidosSub = this._ubicacion.taxista.collection('pedidos').valueChanges().subscribe((data:any)=>{
+                          this.pedidosSub = this._ubicacion.conductor.collection('pedidos').valueChanges().subscribe((data:any)=>{
                               if(data){
                                 this.actualizarMenu.emitChange(data);
                               }else{
@@ -146,7 +125,7 @@ export class LoginPage {
 
   irPagina(){
      /* console.log(this.usuario);  */
-      this.db.collection(`${this.empresa}`).doc('movil').collection('usuarios').doc(`${this.usuario['clave']}`).update({
+      this.db.collection('locales').doc(`${this.empresa}`).collection('movil').doc(`${this.usuario['clave']}`).update({
       online: true,
       empresa: this.empresa
     }).catch(err =>{

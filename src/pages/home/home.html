@@ -15,7 +15,22 @@
 </ion-header>
 
 <ion-content>
-    <agm-map [latitude]="user.lat" [longitude]="user.lng" [zoom]="15">
+    <agm-map (mapReady)="mapReady($event)" [latitude]="user.lat" [longitude]="user.lng" [styles]="styles" [streetViewControl]="false" [zoom]="17">
         <agm-marker [latitude]="user.lat" [longitude]="user.lng"></agm-marker>
+        <agm-direction *ngIf="crearRuta" (onchange)="change($event)" [origin]="origin" [renderOptions]="renderOptions" [markerOptions]="markerOptions" [waypoints]="waypoints" [destination]="destination">
+        </agm-direction>
     </agm-map>
+    <ion-fab center bottom #fab1>
+        <button ion-fab mini><ion-icon name="add"></ion-icon></button>
+        <ion-fab-list side=top>
+            <button ion-fab (click)="comenzarGeo(user.nombre, fab1)" color="primary">
+                <ion-icon [name]="iconoComenzarGeo"></ion-icon>
+            </button>
+            <button ion-fab (click)="generarRuta(user, fab1)" color="primary"><ion-icon [name]="iconoRuta"></ion-icon></button>
+            <button ion-fab (click)="cambiarTema(user.nombre, fab1)" color="primary"><ion-icon [name]="iconoTema"></ion-icon></button>
+        </ion-fab-list>
+    </ion-fab>
+    <ion-fab top right>
+        <button ion-fab mini (click)="localizar(user)"><ion-icon name="locate-outline"></ion-icon></button>
+    </ion-fab>
 </ion-content>

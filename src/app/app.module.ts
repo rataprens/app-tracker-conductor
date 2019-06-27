@@ -1,8 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
-import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+import { IonicApp, IonicErrorHandler, IonicModule, FabContainer } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
+
 
 
 //Componentes y servicios
@@ -34,7 +35,7 @@ import { Geolocation } from '@ionic-native/geolocation';
 //Plugin de google maps
 import { AgmCoreModule } from '@agm/core';
 import { ActualizarMenuProvider } from '../providers/actualizar-menu/actualizar-menu';
-
+import { AgmDirectionModule } from 'agm-direction' 
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { ActualizarMenuProvider } from '../providers/actualizar-menu/actualizar-
     IonicStorageModule.forRoot(),
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyCNrSxTaaXtAZy3Wtucs6voOjCxJGpuujM'
-    })
+    }),
+    AgmDirectionModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -73,7 +75,8 @@ import { ActualizarMenuProvider } from '../providers/actualizar-menu/actualizar-
     UsuarioProvider,
     UbicacionProvider,
     Geolocation,
-    ActualizarMenuProvider
+    ActualizarMenuProvider,
+    FabContainer
   ]
 })
 export class AppModule {}

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Storage } from '@ionic/storage';
 import { Platform } from 'ionic-angular';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable, Subject } from 'rxjs';
 
 
 @Injectable()
@@ -13,9 +13,9 @@ export class UsuarioProvider {
   user:any = {};
   public doc: Subscription;
   guardado:boolean = false;
+  
 
   constructor( private afDB: AngularFirestore, private storage: Storage, private platform:Platform) {
-    console.log('Hello UsuarioProvider Provider');
       
     if(this.platform.is('cordova')){
       /* movil */
@@ -67,7 +67,7 @@ export class UsuarioProvider {
     return new Promise((resolve, reject) =>{
       
       //Hacemos referencia al objeto y nos subscribimos
-    this.doc = this.afDB.collection(`${this.empresa}`).doc(`movil`).collection(`usuarios`).doc(`${this.clave}`)
+    this.doc = this.afDB.collection('locales').doc(`${this.empresa}`).collection(`movil`).doc(`${this.clave}`)
             .valueChanges().subscribe(data =>{
               //Si existe la data
               if(data){
@@ -91,6 +91,23 @@ export class UsuarioProvider {
 
   detenerSub(){
         this.doc.unsubscribe();
+  }
+
+  getPedidos(nombre:string, clave:string): Observable<any>{
+    let subject = new Subject<any>(); 
+    this.afDB.collection('locales').doc(`${nombre}`).collection('movil').doc(`${clave}`).collection('pedidos').valueChanges().subscribe((data:any)=>{
+      if(data.length != 0){
+        subject.next(data);
+      }else{
+        console.log("no hay informacion");
+      }
+    });
+    
+    return subject.asObservable();
+  }
+
+  getDatosEmpresa(nombre:string){
+    return this.afDB.collection('locales').doc(`${nombre}`).valueChanges();
   }
 
   guardarStorage(){
@@ -142,11 +159,13 @@ export class UsuarioProvider {
       //Celular
       this.storage.remove("clave");
       this.storage.remove('empresa');
+      this.storage.remove('estadoMapa');
       console.log("storage borrado celular");
     }else{
       //Escritorio
       localStorage.removeItem("clave");
       localStorage.removeItem('empresa');
+      localStorage.removeItem('estadoMapa');
       console.log("storage borrado");
     }
     this.guardado = false;

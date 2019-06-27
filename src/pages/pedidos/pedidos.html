@@ -14,17 +14,26 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content>
     <ion-list no-lines>
         <ng-container *ngFor="let pedido of pedidos">
-            <ion-item *ngIf="!pedido.entregado" (click)="abrirDetalles(pedido)">
-                <ion-avatar item-start>
-                    <img src="assets/imgs/delivery.png">
-                </ion-avatar>
-                <h2>{{pedido.tipoPedido}}</h2>
-                <p>{{pedido.direccion}}</p>
-            </ion-item>
+            <ion-item-sliding #item>
+                <ion-item *ngIf="!pedido.entregado">
+                    <ion-avatar item-start>
+                        <img src="assets/imgs/delivery.png">
+                    </ion-avatar>
+                    <h2>{{pedido.tipoPedido}}</h2>
+                    <p>{{pedido.direccion}}</p>
+                </ion-item>
+                <ion-item-options side="right">
+                    <button ion-button (click)="abrirDetalles(pedido, item)">Detalles
+                            <ion-icon name="more-outline"></ion-icon>
+                    </button>
+                    <button ion-button (click)="completarPedidos(pedido)">Realizado
+                            <ion-icon name="checkmark-circle-outline" style="margin-left: 0%"></ion-icon>
+                    </button>
+                </ion-item-options>
+            </ion-item-sliding>
         </ng-container>
-
     </ion-list>
 </ion-content>
