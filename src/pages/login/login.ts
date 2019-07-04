@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, HostListener } from '@angular/core';
 import { IonicPage, NavController, NavParams, Slides, AlertController, LoadingController } from 'ionic-angular';
 import { UsuarioProvider } from '../../providers/usuario/usuario';
 import { HomePage } from '../home/home';
@@ -6,6 +6,7 @@ import { UbicacionProvider } from '../../providers/ubicacion/ubicacion';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 import { ActualizarMenuProvider } from '../../providers/actualizar-menu/actualizar-menu';
+
 
 
 @IonicPage()
@@ -23,6 +24,16 @@ export class LoginPage {
   password:string;
   public verificarSub: Subscription;
   @ViewChild(Slides) slides: Slides
+  key:any;
+
+  @HostListener('document:keypress', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) { 
+    this.key = event.key;
+    console.log(this.key);
+    if(this.key === 'Enter'){
+      this.ingresar();
+    }
+  }
   //FIN VARIABLES
   
   //CONSTRUCTOR
@@ -124,17 +135,22 @@ export class LoginPage {
   /* FIN METODO */
 
   irPagina(){
-     /* console.log(this.usuario);  */
-      this.db.collection('locales').doc(`${this.empresa}`).collection('movil').doc(`${this.usuario['clave']}`).update({
-      online: true,
-      empresa: this.empresa
-    }).catch(err =>{
-        console.log(err);
-    });
-    this.navCtrl.setRoot(HomePage);
-    if(this.pedidosSub){
-      this.pedidosSub.unsubscribe();
-    }
+    
+   
+      /* console.log(this.usuario);  */
+       this.db.collection('locales').doc(`${this.empresa}`).collection('movil').doc(`${this.usuario['clave']}`).update({
+       online: true,
+       empresa: this.empresa
+     }).catch(err =>{
+         console.log(err);
+     });
+     this.navCtrl.setRoot(HomePage);
+     if(this.pedidosSub){
+       this.pedidosSub.unsubscribe();
+     }
+
   }
+
+
 
 }

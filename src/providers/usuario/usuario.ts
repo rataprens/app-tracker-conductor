@@ -4,6 +4,17 @@ import { Storage } from '@ionic/storage';
 import { Platform } from 'ionic-angular';
 import { Subscription, Observable, Subject } from 'rxjs';
 
+export interface InfoEmpresa{
+  direccion: string,
+  lat:number ,
+  lng:number ,
+  nombre: string,
+  numeroTelefono:number ,
+  password: string,
+  tipo: string,
+  tipoPlan:string 
+  }
+
 
 @Injectable()
 export class UsuarioProvider {
@@ -106,8 +117,19 @@ export class UsuarioProvider {
     return subject.asObservable();
   }
 
-  getDatosEmpresa(nombre:string){
-    return this.afDB.collection('locales').doc(`${nombre}`).valueChanges();
+  getDatosEmpresa(nombre:string): Observable<any>{
+    let subject = new Subject<any>();
+    this.afDB.collection('locales').doc(`${nombre}`).valueChanges().subscribe(data=>{
+      if(data){
+        console.log('Datos de empresa:', data, 'Fin datos');
+       
+         subject.next(data);
+      }else{
+        console.log('no hay datos de empresa');
+      }
+    });
+    return subject.asObservable();
+
   }
 
   guardarStorage(){

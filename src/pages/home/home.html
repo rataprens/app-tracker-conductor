@@ -33,4 +33,7 @@
     <ion-fab top right>
         <button ion-fab mini (click)="localizar(user)"><ion-icon name="locate-outline"></ion-icon></button>
     </ion-fab>
+    <ion-fab top left *ngIf="crearRuta">
+        <button ion-fab mini (click)="comenzarViaje(user)"><ion-icon [name]="iconoViaje"></ion-icon></button>
+    </ion-fab>
 </ion-content>

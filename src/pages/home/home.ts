@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
 import { ToastController } from 'ionic-angular';
 import { ActualizarMenuProvider } from '../../providers/actualizar-menu/actualizar-menu';
 
-interface InfoEmpresa{
+ export interface InfoEmpresa{
     direccion: string,
     lat:number ,
     lng:number ,
@@ -44,6 +44,7 @@ export class HomePage {
   iconoTema: string = 'sunny';
   estadoMapa: boolean = false;
   pedidos:any[];
+  iconoViaje:string = 'checkmark-circle-outline';
   styles: any = require('../../jsonfiles/theme-dia.json');
   waypoints:any[] = [
    
@@ -52,6 +53,7 @@ export class HomePage {
   empresaLat:any;
   pedidosActivos:any[];
   iconoComenzarGeo:string = "navigate-outline";
+  comenzarViajeActivado:boolean = false;
   public renderOptions = {
     suppressMarkers: true,
   };
@@ -94,17 +96,38 @@ export class HomePage {
                 }
             });
 
-            this.storage.get('empresa').then(nombre =>{
+            this.storage.get('empresa').then( nombre =>{
                 if(nombre){
                   this.empresa = nombre;
-              }else{
-                let toast = this.toast.create({
-                  message: `no hay clave`,
-                  duration: 3000,
-                  position: 'top'
-                });
-                toast.present();
-                }
+                  console.log(nombre);
+                  console.log(this.empresa);
+                  this.db.collection('locales').doc(`${this.empresa}`).valueChanges().subscribe((data:InfoEmpresa)=>{
+                    console.log(data.lat, data.lng);
+          
+                    if(this.platform.is('Cordova')){              
+                      this.storage.set('empresaLat', data.lat.toString());
+                      this.storage.set('empresaLng', data.lng.toString());
+                    }else{
+                      localStorage.setItem('empresaLat', data.lat.toString());
+                      localStorage.setItem('empresaLng', data.lng.toString());
+                    }
+                    this.infoEmpresa = data
+                  });
+          
+                  if(this.platform.is('Cordova')){
+                    this.storage.get('empresaLat').then((empresaLat:string)=>{
+                      if(empresaLat){
+                        this.infoEmpresa.lat = parseInt(empresaLat);
+                      }
+                    });
+                    this.storage.get('empresaLng').then((empresaLng:string)=>{
+                      if(empresaLng){
+                        this.infoEmpresa.lng = parseInt(empresaLng);
+                      }
+                    });
+                  }
+                  
+              }
             });
 
             this.storage.get('geolocalizacionIniciada').then(geolocalizacionIniciada =>{
@@ -167,10 +190,11 @@ export class HomePage {
         
       } */
 
+      /* console.log('nombre de la empresa:' + this.empresa);
       this._usuarioProv.getDatosEmpresa(this.empresa).subscribe((data:InfoEmpresa)=>{
-        console.log(data);
+        
         this.infoEmpresa = data;
-      });    
+      }); */
 
       this._ubicacionProv.iniciarConductor();
       /* this._ubicacionProv.iniciarGeolocalizacion(); */
@@ -312,6 +336,7 @@ export class HomePage {
   localizar(user: any){
       if(this.map){
         this.map.setCenter({lat: user.lat, lng: user.lng});
+        this.map.setZoom(16);
         console.log("mapa seteado");
       }else{
         console.log("mapa no seteado");
@@ -364,7 +389,6 @@ export class HomePage {
   generarRuta(user:any, fab:any){
 
     if(!this.crearRuta){
-
       this.alertCtrl.create({
         title: '¿Desea generar una ruta óptima?',
         message: `${user.nombre} se creará una ruta óptima a partir de los pedidos asignados`,
@@ -388,6 +412,7 @@ export class HomePage {
            this.destination = { lat: this.infoEmpresa.lat, lng: this.infoEmpresa.lng };
             this.crearRuta = true;
             this.iconoRuta = 'map';
+            
             }
           }
         ]
@@ -413,7 +438,7 @@ export class HomePage {
           }
         ]
       }).present();
-
+  
     }
     
   }
@@ -421,5 +446,49 @@ export class HomePage {
   public change(event: any) {
     this.waypoints = event.request.waypoints;
   }
+
+  comenzarViaje(user:any){
+    console.log('boton activado');
+    if(this.comenzarViajeActivado){
+      console.log('comenzar viaje desactivado');
+      
+      this.alertCtrl.create({
+        title: '¿Desea terminar con su viaje?',
+        message: 'se terminará con el recorrido',
+        buttons:[
+          {
+            text: 'Ok',
+            role: 'confirm',
+            handler: ()=>{              
+              this.map.setCenter({lat:user.lat, lng:user.lng});
+              this.map.setZoom(16);
+              this.iconoViaje = 'checkmark-circle-outline'
+              this.comenzarViajeActivado = false;
+            }
+          }
+        ]
+      }).present();
+
+    }else{
+      console.log('comenzar viaje activado');
+        
+      this.alertCtrl.create({
+        title: '¿Desea comenzar con su viaje?',
+        message: 'se comenzará con el recorrido',
+        buttons:[
+          {
+            text: 'Ok',
+            role: 'confirm',
+            handler: ()=>{                
+              this.map.setCenter({lat:user.lat, lng:user.lng});
+              this.map.setZoom(19);
+              this.iconoViaje = 'checkmark-circle'
+              this.comenzarViajeActivado = true;       
+            }
+          }
+        ]
+      }).present();
+  }
+}
 
 }
